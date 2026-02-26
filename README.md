@@ -35,21 +35,6 @@ Historically, passing credentials to `mstsc` normally requires vulnerable `.rdp`
 
 ---
 
-## 📸 Screenshots
-
-<img src="https://github.com/user-attachments/assets/6a54c962-649e-4beb-9760-a7e60173e6c2" width="900">
-
-<img src="https://github.com/user-attachments/assets/ec5fa30e-9675-4519-bcff-0472d8c2576b" width="500">
-
----
-
-## 📖 Interface Overview
-
-The interface is broken down into three logical sections:
-1. **The Navigation Top Bar:** Includes Global Search, Settings, and the 'New Session' dialogue.
-2. **The Library Sidebar:** Actively filters the entire Grid View by specific Domains or Workspaces dynamically. 
-3. **The Grid Display:** A responsive array of connection cards automatically branded with smart icons (e.g., Desktop, Linux, Database) depending on context, featuring inline delete controls, interactive hovering, and Real-Time network status lights.
-
 ---
 
 ## 🚀 Getting Started
@@ -77,6 +62,24 @@ Simply launch the Python script from your terminal:
 ```bash
 python rdp_manager.py
 ```
+
+
+## 📸 Screenshots
+
+<img src="https://github.com/user-attachments/assets/6a54c962-649e-4beb-9760-a7e60173e6c2" width="900">
+
+---
+
+<img src="https://github.com/user-attachments/assets/ec5fa30e-9675-4519-bcff-0472d8c2576b" width="500">
+
+---
+
+## 📖 Interface Overview
+
+The interface is broken down into three logical sections:
+1. **The Navigation Top Bar:** Includes Global Search, Settings, and the 'New Session' dialogue.
+2. **The Library Sidebar:** Actively filters the entire Grid View by specific Domains or Workspaces dynamically. 
+3. **The Grid Display:** A responsive array of connection cards automatically branded with smart icons (e.g., Desktop, Linux, Database) depending on context, featuring inline delete controls, interactive hovering, and Real-Time network status lights.
 
 ---
 
