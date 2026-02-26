@@ -524,8 +524,9 @@ class App(ctk.CTk):
         desc_lbl = ctk.CTkLabel(desc_frame, text=display_desc, font=self.font_normal, text_color=TEXT_MUTED, anchor="w")
         desc_lbl.pack(side="left")
 
-        del_btn = ctk.CTkButton(card, text="✕", width=24, height=24, fg_color="transparent", hover_color=DANGER_RED, text_color=TEXT_MUTED, font=self.font_small, corner_radius=12, command=lambda h=host: self.delete_host(h))
-        del_btn.grid(row=0, column=2, sticky="ne", padx=10, pady=10)
+        opts_btn = ctk.CTkButton(card, text="⋮", width=24, height=24, fg_color="transparent", hover_color=BG_MAIN, text_color=TEXT_MUTED, font=ctk.CTkFont(size=18, weight="bold"), corner_radius=12)
+        opts_btn.grid(row=0, column=2, sticky="ne", padx=10, pady=10)
+        opts_btn.bind("<Button-1>", lambda e, h=host: self.show_context_menu(e, h))
 
         def on_enter(e): card.configure(fg_color=CARD_HOVER)
         def on_leave(e): card.configure(fg_color=CARD_BG)
@@ -535,6 +536,10 @@ class App(ctk.CTk):
             el.bind("<Enter>", on_enter)
             el.bind("<Leave>", on_leave)
             el.bind("<Button-1>", lambda e, h=host: self.connect_to_host(h))
+
+        # Add right-click context menu directly to the card as well
+        for el in elements + [opts_btn]:
+            el.bind("<Button-3>", lambda e, h=host: self.show_context_menu(e, h))
 
         return card
 
@@ -574,7 +579,10 @@ class App(ctk.CTk):
         
         # If the widget currently exists on the screen, intelligently update its color
         if host in self.status_widgets:
-            color = STATUS_ONLINE if status == "online" else STATUS_OFFLINE
+            if status == "online": color = STATUS_ONLINE
+            elif status == "offline": color = STATUS_OFFLINE
+            else: color = STATUS_PENDING
+            
             try:
                 # Basic safety check to ensure element hasn't been torn down asynchronously
                 if self.status_widgets[host].winfo_exists():
@@ -609,6 +617,70 @@ class App(ctk.CTk):
         _, status = self.ping_single_host(host)
         # Update UI thread-safely
         self.ping_queue.put((host, status))
+
+    # =============== CONTEXT MENU ===============
+    def show_context_menu(self, event, host):
+        # Destroy any existing custom menu
+        if hasattr(self, "_current_menu") and self._current_menu and self._current_menu.winfo_exists():
+            self._current_menu.destroy()
+
+        menu = ctk.CTkToplevel(self)
+        menu.overrideredirect(True)
+        menu.geometry(f"170x170+{event.x_root}+{event.y_root}")
+        menu.configure(fg_color=BG_MAIN) # Border color behind
+        self._current_menu = menu
+
+        # Inner frame to act as the menu card with a border
+        menu_frame = ctk.CTkFrame(menu, fg_color=CARD_BG, corner_radius=8, border_width=1, border_color=CARD_HOVER)
+        menu_frame.pack(fill="both", expand=True, padx=1, pady=1)
+
+        def action_edit():
+            menu.destroy()
+            messagebox.showinfo("Info", "Edit host feature coming soon!")
+            
+        def action_ping():
+            menu.destroy()
+            self.ping_manually(host)
+            
+        def action_copy():
+            menu.destroy()
+            self.copy_ip(host)
+            
+        def action_delete():
+            menu.destroy()
+            self.delete_host(host)
+
+        btn_font = ctk.CTkFont(family="Segoe UI", size=13, weight="bold")
+        
+        btn_edit = ctk.CTkButton(menu_frame, text="Edit", anchor="w", fg_color="transparent", hover_color=CARD_HOVER, text_color=TEXT_PRIMARY, font=btn_font, height=36, command=action_edit)
+        btn_edit.pack(fill="x", padx=4, pady=(4, 2))
+
+        btn_ping = ctk.CTkButton(menu_frame, text="Ping Manually", anchor="w", fg_color="transparent", hover_color=CARD_HOVER, text_color=TEXT_PRIMARY, font=btn_font, height=36, command=action_ping)
+        btn_ping.pack(fill="x", padx=4, pady=2)
+
+        btn_copy = ctk.CTkButton(menu_frame, text="Copy IP", anchor="w", fg_color="transparent", hover_color=CARD_HOVER, text_color=TEXT_PRIMARY, font=btn_font, height=36, command=action_copy)
+        btn_copy.pack(fill="x", padx=4, pady=2)
+
+        # Subtle separator
+        ctk.CTkFrame(menu_frame, height=1, fg_color=CARD_HOVER).pack(fill="x", padx=10, pady=2)
+
+        btn_del = ctk.CTkButton(menu_frame, text="Delete", anchor="w", fg_color="transparent", hover_color="#4F1A1A", text_color=DANGER_RED, font=btn_font, height=36, command=action_delete)
+        btn_del.pack(fill="x", padx=4, pady=(2, 4))
+
+        # Close the menu if we click anywhere outside of it
+        menu.bind("<FocusOut>", lambda e: menu.destroy())
+        menu.focus_set()
+
+    def ping_manually(self, host):
+        self.host_statuses[host] = "pending"
+        self.update_ui_status(host, "pending")
+        threading.Thread(target=self._ping_worker, args=(host,), daemon=True).start()
+
+    def copy_ip(self, host):
+        target = host.rsplit(":", 1)[0] if ":" in host and host.rsplit(":", 1)[1].isdigit() else host
+        self.clipboard_clear()
+        self.clipboard_append(target)
+        self.update()
 
     # ==========================================
 
