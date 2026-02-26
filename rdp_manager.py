@@ -10,7 +10,7 @@ import time
 import queue
 import webbrowser
 
-try:
+try: 
     import customtkinter as ctk
 except ImportError:
     messagebox.showerror(
