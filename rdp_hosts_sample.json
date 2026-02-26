@@ -1,0 +1,55 @@
+{
+    "version": 3,
+    "domains": {
+        "example.com": {
+            "username": "example\\admin",
+            "password": "U2FtcGxlUGFzc3dvcmQxMjMh"
+        },
+        "contoso.local": {
+            "username": "contoso\\user",
+            "password": "U2FtcGxlUGFzc3dvcmQxMjMh"
+        },
+        "local_admin": {
+            "username": ".\\Administrator",
+            "password": "U2FtcGxlUGFzc3dvcmQxMjMh"
+        }
+    },
+    "hosts": {
+        "dc01": {
+            "domain": "example.com",
+            "group": "Domain Controllers",
+            "desc": "Primary Domain Controller",
+            "has_password": true
+        },
+        "fs01": {
+            "domain": "example.com",
+            "group": "File Servers",
+            "desc": "Main File Server",
+            "has_password": true
+        },
+        "db01:3390": {
+            "domain": "contoso.local",
+            "group": "Database Servers",
+            "desc": "SQL Database (Custom Port)",
+            "has_password": true
+        },
+        "192.168.1.50": {
+            "domain": "local_admin",
+            "group": "Standalone Servers",
+            "desc": "Legacy Web Server (IP Address)",
+            "has_password": true
+        },
+        "test-app-server": {
+            "domain": "contoso.local",
+            "group": "Testing Environment",
+            "desc": "Application Server (Prompt for Password)",
+            "has_password": false
+        },
+        "10.0.0.12:3391": {
+            "domain": "local_admin",
+            "group": "Gateway",
+            "desc": "Gateway Node (IP Address & Custom Port)",
+            "has_password": true
+        }
+    }
+}
