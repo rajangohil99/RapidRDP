@@ -3,7 +3,7 @@
 **Author** - Rajan Gohil  
 **Github:** https://github.com/rajangohil99  
 
-> A gorgeous, high-performance, dark-themed Remote Desktop connection manager built natively in Python using CustomTkinter. 
+> RapidRDP is an open-source Windows RDP connection manager built in Python with CustomTkinter. It combines a sleek dark UI with fast host access, live status monitoring, and secure credential handling powered by the native mstsc client.
 
 ![RapidRDP Header](https://img.shields.io/badge/Python-3.x-blue?style=for-the-badge&logo=python)
 ![CustomTkinter](https://img.shields.io/badge/CustomTkinter-Dark_Mode-black?style=for-the-badge)
