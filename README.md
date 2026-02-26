@@ -3,7 +3,7 @@
 **Author** - Rajan Gohil  
 **Github:** https://github.com/rajangohil99  
 
-> RapidRDP is an open-source Windows RDP connection manager built in Python with CustomTkinter. It combines a sleek dark UI with fast host access, live status monitoring, and secure credential handling powered by the native mstsc client.
+> RapidRDP is an open-source Windows RDP connection manager built in Python with CustomTkinter. It combines a sleek UI (with Dark/Light mode support) with fast host access, live status monitoring, and secure credential handling powered by the native mstsc client.
 
 ![RapidRDP Header](https://img.shields.io/badge/Python-3.x-blue?style=for-the-badge&logo=python)
 ![CustomTkinter](https://img.shields.io/badge/CustomTkinter-Dark_Mode-black?style=for-the-badge)
@@ -13,7 +13,7 @@
 
 ## ✨ Features
 
-- **🎨 Modern Dark UI:** A fully responsive, sleek interface built on top of `CustomTkinter` featuring a fluid grid layout, interactive hover states, and smooth filters.
+- **🎨 Modern UI & Theme Toggling:** A fully responsive, sleek interface built on top of `CustomTkinter` featuring a fluid grid layout, interactive hover states, smooth filters, and a built-in dark/light mode switch.
 - **🟢 Live Ping Monitoring:** A highly-efficient, asynchronous background daemon actively pings all configured servers in parallel and displays a real-time Green or Red status indicator directly on the host cards.
 - **⚡ Quick Connect Bar:** Need to jump onto a temporary machine quickly? Use the permanent Quick Connect bar to type an IP and instantly fire up an RDP session without building a profile.
 - **🏢 Intelligent Domain Credentials:** Store passwords *once* by Domain. Assign a server to a domain, and the app seamlessly securely handles authentication behind the scenes!
@@ -79,7 +79,7 @@ python rdp_manager.py
 The interface is broken down into three logical sections:
 1. **The Navigation Top Bar:** Includes Global Search, Settings, and the 'New Session' dialogue.
 2. **The Library Sidebar:** Actively filters the entire Grid View by specific Domains or Workspaces dynamically. 
-3. **The Grid Display:** A responsive array of connection cards automatically branded with smart icons (e.g., Desktop, Linux, Database) depending on context, featuring inline delete controls, interactive hovering, and Real-Time network status lights.
+3. **The Grid Display:** A responsive array of connection cards automatically branded with smart icons (e.g., Desktop, Linux, Database) depending on context, featuring a custom context menu (Edit, Manual Ping, Copy IP, Delete), interactive hovering, and Real-Time network status lights.
 
 ---
 
