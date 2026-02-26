@@ -8,6 +8,7 @@ import math
 import threading
 import time
 import queue
+import webbrowser
 
 try:
     import customtkinter as ctk
@@ -18,23 +19,21 @@ except ImportError:
     )
     exit()
 
-# Termius-Inspired Premium Color Palette
-BG_MAIN = "#0B0C10"       # Deep black/blue for main viewing area
-BG_SIDEBAR = "#13151C"    # Distinct, slightly elevated sidebar
-BG_TOPBAR = "#13151C"     # Flush with sidebar
-CARD_BG = "#1C1F2B"       # Subtle card elevation
-CARD_HOVER = "#262A3B"    # Tactile hover highlight
-TEXT_PRIMARY = "#FFFFFF"  # Crisp primary text
-TEXT_MUTED = "#7D8799"    # Softer secondary text
-ACCENT_BLUE = "#5E6AD2"   # Vibrant, modern blurple accent
-DANGER_RED = "#E05353"    # Softer, modern red
+# Termius-Inspired Premium Color Palette (Light Mode, Dark Mode)
+BG_MAIN = ("#EDF0F3", "#0B0C10")       # Deep black/blue for main viewing area
+BG_SIDEBAR = ("#FAFAFC", "#13151C")    # Distinct, slightly elevated sidebar
+BG_TOPBAR = ("#FAFAFC", "#13151C")     # Flush with sidebar
+CARD_BG = ("#FFFFFF", "#1C1F2B")       # Subtle card elevation
+CARD_HOVER = ("#EAECEF", "#262A3B")    # Tactile hover highlight
+TEXT_PRIMARY = ("#111827", "#FFFFFF")  # Crisp primary text
+TEXT_MUTED = ("#6B7280", "#7D8799")    # Softer secondary text
+ACCENT_BLUE = ("#4F46E5", "#5E6AD2")   # Vibrant, modern blurple accent
+DANGER_RED = ("#EF4444", "#E05353")    # Softer, modern red
 
 # Status colors - adjusted for dark mode glow
-STATUS_ONLINE = "#3CC887"
-STATUS_OFFLINE = "#E05353"
-STATUS_PENDING = "#7D8799"
-
-ctk.set_appearance_mode("Dark")
+STATUS_ONLINE = ("#10B981", "#3CC887")
+STATUS_OFFLINE = ("#EF4444", "#E05353")
+STATUS_PENDING = ("#9CA3AF", "#7D8799")
 
 CONFIG_FILE = "rdp_hosts_sample.json"
 
@@ -101,9 +100,45 @@ class AddHostDialog(ctk.CTkToplevel):
         if success:
             self.destroy()
 
+class SettingsDialog(ctk.CTkToplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.title("Settings")
+        self.geometry("300x200")
+        self.configure(fg_color=BG_MAIN)
+        self.resizable(False, False)
+        
+        self.update_idletasks()
+        self.grab_set()
+
+        self.parent_app = parent
+
+        ctk.CTkLabel(self, text="Application Settings", font=ctk.CTkFont(family="Segoe UI", size=16, weight="bold"), text_color=TEXT_PRIMARY).pack(pady=(20, 10))
+        
+        # Theme Switcher
+        theme_frame = ctk.CTkFrame(self, fg_color="transparent")
+        theme_frame.pack(fill="x", padx=30, pady=10)
+        
+        ctk.CTkLabel(theme_frame, text="Theme:", font=ctk.CTkFont(family="Segoe UI", size=13), text_color=TEXT_MUTED).pack(side="left", padx=(0, 10))
+        
+        self.theme_var = ctk.StringVar(value=self.parent_app.appearance_mode)
+        self.theme_dropdown = ctk.CTkOptionMenu(theme_frame, variable=self.theme_var, values=["Dark", "Light"], command=self.change_theme)
+        self.theme_dropdown.pack(side="left", fill="x", expand=True)
+        
+        close_btn = ctk.CTkButton(self, text="Close", fg_color=ACCENT_BLUE, hover_color="#1E4496", corner_radius=6, command=self.destroy)
+        close_btn.pack(side="bottom", pady=20)
+
+    def change_theme(self, new_mode):
+        self.parent_app.appearance_mode = new_mode
+        ctk.set_appearance_mode(new_mode)
+
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
+        
+        self.appearance_mode = "Dark"
+        ctk.set_appearance_mode(self.appearance_mode)
+        
         self.title("RapidRDP")
         self.geometry("1100x750")
         self.minsize(900, 650)
@@ -188,8 +223,9 @@ class App(ctk.CTk):
         ctk.CTkLabel(self.topbar, text="RapidRDP", font=ctk.CTkFont(size=16, weight="bold"), text_color=ACCENT_BLUE).grid(row=0, column=0, padx=(20, 20), pady=10)
 
         # Buttons
-        ctk.CTkButton(self.topbar, text="★ New Session", width=100, fg_color="transparent", hover_color=BG_MAIN, font=ctk.CTkFont(size=12, weight="bold"), command=self.open_add_host).grid(row=0, column=1, padx=5)
-        ctk.CTkButton(self.topbar, text="⚙ Settings", width=80, fg_color="transparent", hover_color=BG_MAIN, font=ctk.CTkFont(size=12)).grid(row=0, column=2, padx=5)
+        ctk.CTkButton(self.topbar, text="★ New Session", width=100, fg_color="transparent", hover_color=BG_MAIN, font=ctk.CTkFont(size=12, weight="bold"), text_color=TEXT_PRIMARY, command=self.open_add_host).grid(row=0, column=1, padx=5)
+        ctk.CTkButton(self.topbar, text="🔗 GitHub", width=80, fg_color="transparent", hover_color=BG_MAIN, font=ctk.CTkFont(size=12), text_color=TEXT_PRIMARY, command=self.open_github).grid(row=0, column=2, padx=5)
+        ctk.CTkButton(self.topbar, text="⚙ Settings", width=80, fg_color="transparent", hover_color=BG_MAIN, font=ctk.CTkFont(size=12), text_color=TEXT_PRIMARY, command=self.open_settings).grid(row=0, column=3, padx=5)
 
         # Search
         self.search_var = ctk.StringVar()
@@ -203,7 +239,7 @@ class App(ctk.CTk):
         search_icon = ctk.CTkLabel(search_frame, text="🔍", font=ctk.CTkFont(family="Segoe UI Emoji", size=14), text_color=TEXT_MUTED)
         search_icon.grid(row=0, column=0, padx=(10, 5), pady=4)
         
-        search_entry = ctk.CTkEntry(search_frame, placeholder_text="Search hosts...", width=160, height=32, textvariable=self.search_var, fg_color="transparent", border_width=0)
+        search_entry = ctk.CTkEntry(search_frame, placeholder_text="Search hosts...", width=160, height=32, textvariable=self.search_var, fg_color="transparent", text_color=TEXT_PRIMARY, border_width=0)
         search_entry.grid(row=0, column=1, padx=(0, 10), pady=0)
 
     def setup_sidebar(self):
@@ -296,6 +332,12 @@ class App(ctk.CTk):
     def open_add_host(self):
         doms = list(self.app_data["domains"].keys())
         AddHostDialog(self, doms, self.save_new_host)
+
+    def open_github(self):
+        webbrowser.open("https://github.com/rajangohil99/RapidRDP")
+
+    def open_settings(self):
+        SettingsDialog(self)
 
     def save_new_host(self, data):
         host = data["host"]
