@@ -18,21 +18,21 @@ except ImportError:
     )
     exit()
 
-# UI Colors inspired by image
-BG_MAIN = "#1A1D24"
-BG_SIDEBAR = "#14161C"
-BG_TOPBAR = "#1E222A"
-CARD_BG = "#222736"
-CARD_HOVER = "#292F42"
-TEXT_PRIMARY = "#FFFFFF"
-TEXT_MUTED = "#8B949E"
-ACCENT_BLUE = "#2452B5"
-DANGER_RED = "#D32F2F"
+# Termius-Inspired Premium Color Palette
+BG_MAIN = "#0B0C10"       # Deep black/blue for main viewing area
+BG_SIDEBAR = "#13151C"    # Distinct, slightly elevated sidebar
+BG_TOPBAR = "#13151C"     # Flush with sidebar
+CARD_BG = "#1C1F2B"       # Subtle card elevation
+CARD_HOVER = "#262A3B"    # Tactile hover highlight
+TEXT_PRIMARY = "#FFFFFF"  # Crisp primary text
+TEXT_MUTED = "#7D8799"    # Softer secondary text
+ACCENT_BLUE = "#5E6AD2"   # Vibrant, modern blurple accent
+DANGER_RED = "#E05353"    # Softer, modern red
 
-# Status colors
-STATUS_ONLINE = "#2FA572" # Green
-STATUS_OFFLINE = "#D35B58" # Red
-STATUS_PENDING = "#8B949E" # Gray
+# Status colors - adjusted for dark mode glow
+STATUS_ONLINE = "#3CC887"
+STATUS_OFFLINE = "#E05353"
+STATUS_PENDING = "#7D8799"
 
 ctk.set_appearance_mode("Dark")
 
@@ -120,11 +120,12 @@ class App(ctk.CTk):
         # Mapping host to UI status circle widget
         self.status_widgets = {}
 
-        # Font caching for performance and emoji support
-        self.font_icon = ctk.CTkFont(family="Segoe UI Emoji", size=32)
-        self.font_bold = ctk.CTkFont(size=14, weight="bold")
-        self.font_normal = ctk.CTkFont(size=12)
-        self.font_small = ctk.CTkFont(size=10, weight="bold")
+        # Premium Typography System (Clean scaling & hierarchy)
+        # Using Segoe UI as a standard cleanly scaling sans-serif on Windows
+        self.font_icon = ctk.CTkFont(family="Segoe UI Emoji", size=24)
+        self.font_bold = ctk.CTkFont(family="Segoe UI", size=14, weight="bold")
+        self.font_normal = ctk.CTkFont(family="Segoe UI", size=13)
+        self.font_small = ctk.CTkFont(family="Segoe UI", size=11, weight="bold")
 
         # Configure Main Grid
         self.grid_rowconfigure(1, weight=1)
@@ -193,11 +194,20 @@ class App(ctk.CTk):
         # Search
         self.search_var = ctk.StringVar()
         self.search_var.trace_add("write", lambda *args: self.on_search())
-        search_entry = ctk.CTkEntry(self.topbar, placeholder_text="Search hosts...", width=200, height=30, textvariable=self.search_var, fg_color=BG_MAIN, border_width=0)
-        search_entry.grid(row=0, column=11, padx=20, sticky="e")
+        
+        search_frame = ctk.CTkFrame(self.topbar, fg_color=BG_MAIN, corner_radius=6, height=32)
+        search_frame.grid(row=0, column=11, padx=20, sticky="e")
+        search_frame.grid_columnconfigure(1, weight=1)
+        search_frame.grid_rowconfigure(0, weight=1)
+        
+        search_icon = ctk.CTkLabel(search_frame, text="🔍", font=ctk.CTkFont(family="Segoe UI Emoji", size=14), text_color=TEXT_MUTED)
+        search_icon.grid(row=0, column=0, padx=(10, 5), pady=4)
+        
+        search_entry = ctk.CTkEntry(search_frame, placeholder_text="Search hosts...", width=160, height=32, textvariable=self.search_var, fg_color="transparent", border_width=0)
+        search_entry.grid(row=0, column=1, padx=(0, 10), pady=0)
 
     def setup_sidebar(self):
-        self.sidebar = ctk.CTkScrollableFrame(self, width=220, corner_radius=0, fg_color=BG_SIDEBAR)
+        self.sidebar = ctk.CTkScrollableFrame(self, width=240, corner_radius=0, fg_color=BG_SIDEBAR)
         self.sidebar.grid(row=1, column=0, sticky="nsew")
 
     def setup_main_area(self):
@@ -348,12 +358,12 @@ class App(ctk.CTk):
         for w in self.sidebar.winfo_children():
             w.destroy()
 
-        dom_lbl = ctk.CTkLabel(self.sidebar, text="Domains", font=ctk.CTkFont(size=14, weight="bold"), text_color=TEXT_MUTED, anchor="w")
-        dom_lbl.pack(fill="x", padx=10, pady=(10, 5))
+        dom_lbl = ctk.CTkLabel(self.sidebar, text="DOMAINS", font=ctk.CTkFont(family="Segoe UI", size=11, weight="bold"), text_color=TEXT_MUTED, anchor="w")
+        dom_lbl.pack(fill="x", padx=15, pady=(20, 10))
 
         bg = CARD_BG if self.current_domain_filter is None else "transparent"
-        btn = ctk.CTkButton(self.sidebar, text="🌐 All Domains", anchor="w", fg_color=bg, hover_color=CARD_BG, text_color=TEXT_PRIMARY, command=lambda: self.filter_by_domain(None))
-        btn.pack(fill="x", padx=5, pady=2)
+        btn = ctk.CTkButton(self.sidebar, text="🌐 All Domains", anchor="w", fg_color=bg, hover_color=CARD_HOVER, corner_radius=6, height=36, text_color=TEXT_PRIMARY, font=self.font_normal, command=lambda: self.filter_by_domain(None))
+        btn.pack(fill="x", padx=10, pady=2)
 
         domains = {}
         for h, info in self.app_data["hosts"].items():
@@ -363,8 +373,8 @@ class App(ctk.CTk):
 
         for dom, count in sorted(domains.items()):
             bg = CARD_BG if self.current_domain_filter == dom else "transparent"
-            btn = ctk.CTkButton(self.sidebar, text=f"🏢 {dom} ({count})", anchor="w", fg_color=bg, hover_color=CARD_BG, text_color=TEXT_PRIMARY, command=lambda d=dom: self.filter_by_domain(d))
-            btn.pack(fill="x", padx=5, pady=2)
+            btn = ctk.CTkButton(self.sidebar, text=f"🏢 {dom} ({count})", anchor="w", fg_color=bg, hover_color=CARD_HOVER, corner_radius=6, height=36, text_color=TEXT_PRIMARY, font=self.font_normal, command=lambda d=dom: self.filter_by_domain(d))
+            btn.pack(fill="x", padx=10, pady=2)
 
     def refresh_grid(self):
         for widget in self.grid_frame.winfo_children():
@@ -439,24 +449,24 @@ class App(ctk.CTk):
         else:
             icon = "🖥️"
 
-        card = ctk.CTkFrame(parent, fg_color=CARD_BG, corner_radius=8, cursor="hand2", height=80)
+        card = ctk.CTkFrame(parent, fg_color=CARD_BG, corner_radius=8, cursor="hand2", height=90)
         card.grid_columnconfigure(1, weight=1)
         card.grid_rowconfigure(0, weight=1)
         card.grid_rowconfigure(1, weight=1)
 
-        icon_lbl = ctk.CTkLabel(card, text=icon, font=self.font_icon, text_color=ACCENT_BLUE)
-        icon_lbl.grid(row=0, column=0, rowspan=2, padx=(15, 10), pady=15, sticky="w")
+        icon_lbl = ctk.CTkLabel(card, text=icon, font=self.font_icon)
+        icon_lbl.grid(row=0, column=0, rowspan=2, padx=(20, 12), pady=0, sticky="w")
 
         # Trim excessively long text so it does not overflow
         display_host = host if len(host) <= 20 else host[:17] + "..."
-        display_desc = desc if len(desc) <= 25 else desc[:22] + "..."
+        display_desc = desc if len(desc) <= 28 else desc[:25] + "..."
 
         name_lbl = ctk.CTkLabel(card, text=display_host, font=self.font_bold, text_color=TEXT_PRIMARY, anchor="w")
-        name_lbl.grid(row=0, column=1, sticky="sw", padx=(0, 5), pady=(15, 0))
+        name_lbl.grid(row=0, column=1, sticky="sw", padx=(5, 5), pady=(20, 0))
 
         # Build desc and status indicator wrapper
         desc_frame = ctk.CTkFrame(card, fg_color="transparent")
-        desc_frame.grid(row=1, column=1, sticky="nw", padx=(0, 5), pady=(2, 15))
+        desc_frame.grid(row=1, column=1, sticky="nw", padx=(5, 5), pady=(2, 20))
         
         # Ping Status Graphic
         current_status = self.host_statuses.get(host, "pending")
@@ -466,14 +476,14 @@ class App(ctk.CTk):
         
         # Create small rounded colored dot
         status_dot = ctk.CTkLabel(desc_frame, text="●", text_color=color, font=self.font_normal)
-        status_dot.pack(side="left", padx=(0, 4))
+        status_dot.pack(side="left", padx=(0, 6))
         self.status_widgets[host] = status_dot
 
         desc_lbl = ctk.CTkLabel(desc_frame, text=display_desc, font=self.font_normal, text_color=TEXT_MUTED, anchor="w")
         desc_lbl.pack(side="left")
 
-        del_btn = ctk.CTkButton(card, text="✕", width=20, height=20, fg_color="transparent", hover_color=DANGER_RED, text_color=TEXT_MUTED, font=self.font_small, command=lambda h=host: self.delete_host(h))
-        del_btn.grid(row=0, column=2, sticky="ne", padx=5, pady=5)
+        del_btn = ctk.CTkButton(card, text="✕", width=24, height=24, fg_color="transparent", hover_color=DANGER_RED, text_color=TEXT_MUTED, font=self.font_small, corner_radius=12, command=lambda h=host: self.delete_host(h))
+        del_btn.grid(row=0, column=2, sticky="ne", padx=10, pady=10)
 
         def on_enter(e): card.configure(fg_color=CARD_HOVER)
         def on_leave(e): card.configure(fg_color=CARD_BG)
